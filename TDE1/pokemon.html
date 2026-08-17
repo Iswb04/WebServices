@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Pokemon Search</title>
+
+    <!-- css desnecessario, mas legal -->
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input {
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-left: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        #resultado {
+            margin: 30px auto;
+            padding: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #resultado h2 {
+            text-transform: capitalize;
+            color: #333;
+        }
+
+        #resultado img {
+            width: 150px;
+        }
+
+        #resultado p {
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="text" id="pokemon" placeholder="Digite o nome do Pokémon">
+
+    <button id="btnConsultar">Consultar</button>
+
+    <div id="resultado"></div>
+
+
+
+
+
+<!--  js  -->
+
+<!--
+fetch()
+   ↓
+recebe a resposta da API
+   ↓
+resposta
+   ↓
+.json()
+   ↓
+extrai/converte o conteúdo JSON
+   ↓
+dados  -->
+
+
+    <script>  // Nome: Isabella Rocha
+
+
+        // Função Async: permite que use await dentro da função e retornar um Promise
+        async function consultarPokemon(nome) {
+
+            try { // try catch >> consultar pokemon
+
+                // Fazer a requisição para a PokéAPI usando a função fetch() : busca nativa de endereço
+                // Await espera a resposta da API chegar, e quando chega o resultado é colocado em 'resposta'
+                const resposta = await fetch(
+                    `https://pokeapi.co/api/v2/pokemon/${nome.toLowerCase()}`
+                );
+
+                // verificando se a resposta foi bem sucedida
+                if (!resposta.ok) {
+                    throw new Error("Pokémon não encontrado.");
+                }
+
+                // convertendo para JSON 
+                const dados = await resposta.json();
+                
+                return dados;
+
+            } catch (erro) {
+
+                throw erro;
+
+            }
+        }
+
+        async function executarConsulta() {  
+
+            const nome = document
+                .getElementById("pokemon")
+                .value
+                .trim();
+
+            const resultado = document
+                .getElementById("resultado");
+
+            if (nome === "") {
+                resultado.innerHTML = "Digite o nome de um Pokémon.";
+                return;
+            }
+
+            try {  // try catch >>  executar consulta
+
+                const dados = await consultarPokemon(nome);
+
+                const tipos = dados.types
+                    .map(tipo => tipo.type.name)
+                    .join(", ");
+
+                resultado.innerHTML = `
+                    <h2>${dados.name}</h2>
+
+                    <img
+                        src="${dados.sprites.front_default}"
+                        alt="Imagem de ${dados.name}"
+                    >
+
+                    <p>
+                        <strong>Altura:</strong>
+                        ${dados.height / 10} m
+                    </p>
+
+                    <p>
+                        <strong>Peso:</strong>
+                        ${dados.weight / 10} kg
+                    </p>
+
+                    <p>
+                        <strong>Tipos:</strong>
+                        ${tipos}
+                    </p>
+                `;
+
+            } catch (erro) {
+
+                resultado.innerHTML =
+                    "Pokémon não encontrado. Verifique o nome informado.";
+
+            }
+        }
+
+        document
+            .getElementById("btnConsultar")
+            .addEventListener("click", executarConsulta);
+
+    </script>
+
+</body>
+</html>
